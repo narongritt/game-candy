@@ -1,4 +1,6 @@
-export type FruitType = 'apple' | 'orange' | 'banana' | 'grape' | 'strawberry' | 'kiwi';
+import { FRUIT_TYPES } from './constants';
+
+export type FruitType = typeof FRUIT_TYPES[number];
 
 export interface Fruit {
   id: string;
@@ -22,8 +24,3 @@ export interface GameState {
   combo: number;
   timeBonus: number;
 }
-
-export const BOARD_SIZE = 8;
-export const INITIAL_MOVES = 20;
-export const FRUIT_TYPES: FruitType[] = ['apple', 'orange', 'banana', 'grape', 'strawberry', 'kiwi'];
-export const LEVEL_SCORES = [1000, 2500, 5000, 8000, 12000];

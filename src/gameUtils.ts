@@ -1,12 +1,12 @@
 import type { Fruit, FruitType } from './types';
-import { BOARD_SIZE, FRUIT_TYPES } from './types';
+import { GAME_CONFIG, FRUIT_TYPES } from './constants';
 
 export const createInitialBoard = (): (Fruit | null)[][] => {
   const board: (Fruit | null)[][] = [];
   
-  for (let row = 0; row < BOARD_SIZE; row++) {
+  for (let row = 0; row < GAME_CONFIG.BOARD_SIZE; row++) {
     board[row] = [];
-    for (let col = 0; col < BOARD_SIZE; col++) {
+    for (let col = 0; col < GAME_CONFIG.BOARD_SIZE; col++) {
       let fruitType: FruitType;
       let attempts = 0;
       
@@ -51,15 +51,15 @@ export const findMatches = (board: (Fruit | null)[][]): Fruit[] => {
   const visited = new Set<string>();
   
   // หา matches แนวนอน
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE - 2; col++) {
+  for (let row = 0; row < GAME_CONFIG.BOARD_SIZE; row++) {
+    for (let col = 0; col < GAME_CONFIG.BOARD_SIZE - 2; col++) {
       const fruit = board[row][col];
       if (!fruit) continue;
       
       let matchLength = 1;
       let currentCol = col + 1;
       
-      while (currentCol < BOARD_SIZE && 
+      while (currentCol < GAME_CONFIG.BOARD_SIZE && 
              board[row][currentCol]?.type === fruit.type) {
         matchLength++;
         currentCol++;
@@ -78,15 +78,15 @@ export const findMatches = (board: (Fruit | null)[][]): Fruit[] => {
   }
   
   // หา matches แนวตั้ง
-  for (let col = 0; col < BOARD_SIZE; col++) {
-    for (let row = 0; row < BOARD_SIZE - 2; row++) {
+  for (let col = 0; col < GAME_CONFIG.BOARD_SIZE; col++) {
+    for (let row = 0; row < GAME_CONFIG.BOARD_SIZE - 2; row++) {
       const fruit = board[row][col];
       if (!fruit) continue;
       
       let matchLength = 1;
       let currentRow = row + 1;
       
-      while (currentRow < BOARD_SIZE && 
+      while (currentRow < GAME_CONFIG.BOARD_SIZE && 
              board[currentRow][col]?.type === fruit.type) {
         matchLength++;
         currentRow++;
@@ -118,13 +118,13 @@ export const removeMatches = (board: (Fruit | null)[][], matches: Fruit[]): (Fru
 };
 
 export const dropFruits = (board: (Fruit | null)[][]): (Fruit | null)[][] => {
-  const newBoard: (Fruit | null)[][] = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
+  const newBoard: (Fruit | null)[][] = Array(GAME_CONFIG.BOARD_SIZE).fill(null).map(() => Array(GAME_CONFIG.BOARD_SIZE).fill(null));
   
-  for (let col = 0; col < BOARD_SIZE; col++) {
+  for (let col = 0; col < GAME_CONFIG.BOARD_SIZE; col++) {
     const columnFruits: Fruit[] = [];
     
     // เก็บ fruits ที่ไม่ใช่ null
-    for (let row = BOARD_SIZE - 1; row >= 0; row--) {
+    for (let row = GAME_CONFIG.BOARD_SIZE - 1; row >= 0; row--) {
       if (board[row][col]) {
         columnFruits.push(board[row][col]!);
       }
@@ -132,7 +132,7 @@ export const dropFruits = (board: (Fruit | null)[][]): (Fruit | null)[][] => {
     
     // วาง fruits ที่เหลือลงในคอลัมน์
     for (let i = 0; i < columnFruits.length; i++) {
-      const newRow = BOARD_SIZE - 1 - i;
+      const newRow = GAME_CONFIG.BOARD_SIZE - 1 - i;
       const fruit = columnFruits[i];
       newBoard[newRow][col] = {
         ...fruit,
@@ -142,7 +142,7 @@ export const dropFruits = (board: (Fruit | null)[][]): (Fruit | null)[][] => {
     }
     
     // เติม fruits ใหม่ในส่วนที่ว่าง
-    for (let row = 0; row < BOARD_SIZE - columnFruits.length; row++) {
+    for (let row = 0; row < GAME_CONFIG.BOARD_SIZE - columnFruits.length; row++) {
       newBoard[row][col] = {
         id: `${row}-${col}-${Date.now()}-${Math.random()}`,
         type: FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)],
@@ -182,14 +182,14 @@ export const areAdjacent = (fruit1: Fruit, fruit2: Fruit): boolean => {
 };
 
 export const calculateScore = (matches: Fruit[], combo: number = 1): number => {
-  const baseScore = matches.length * 100;
-  const comboMultiplier = Math.min(combo, 5); // จำกัดที่ 5x
+  const baseScore = matches.length * GAME_CONFIG.BASE_SCORE_PER_FRUIT;
+  const comboMultiplier = Math.min(combo, GAME_CONFIG.MAX_COMBO_MULTIPLIER);
   return Math.floor(baseScore * comboMultiplier);
 };
 
 export const hasValidMoves = (board: (Fruit | null)[][]): boolean => {
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
+  for (let row = 0; row < GAME_CONFIG.BOARD_SIZE; row++) {
+    for (let col = 0; col < GAME_CONFIG.BOARD_SIZE; col++) {
       const fruit = board[row][col];
       if (!fruit) continue;
       
@@ -202,8 +202,8 @@ export const hasValidMoves = (board: (Fruit | null)[][]): boolean => {
       ];
       
       for (const pos of adjacentPositions) {
-        if (pos.row >= 0 && pos.row < BOARD_SIZE && 
-            pos.col >= 0 && pos.col < BOARD_SIZE) {
+        if (pos.row >= 0 && pos.row < GAME_CONFIG.BOARD_SIZE && 
+            pos.col >= 0 && pos.col < GAME_CONFIG.BOARD_SIZE) {
           const adjacentFruit = board[pos.row][pos.col];
           if (adjacentFruit) {
             // ลองสลับและดูว่าเกิด match หรือไม่

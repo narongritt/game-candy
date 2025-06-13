@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { GameState, Fruit } from '../types';
-import { INITIAL_MOVES, LEVEL_SCORES } from '../types';
+import { GAME_CONFIG, LEVEL_SCORES, ANIMATION_DURATIONS } from '../constants';
 import {
   createInitialBoard,
   findMatches,
@@ -12,55 +12,26 @@ import {
   hasValidMoves,
 } from '../gameUtils';
 import { checkAchievements, type GameStats } from '../achievements';
+import { 
+  playSelectSound, 
+  playSwapSound, 
+  playMatchSound, 
+  playDropSound, 
+  playWinSound, 
+  playLoseSound, 
+  vibrate 
+} from '../utils/audio';
 import GameBoard from './GameBoard';
 import ScoreBoard from './ScoreBoard';
 import AchievementNotification from './AchievementNotification';
 import AchievementProgress from './AchievementProgress';
 import './Game.css';
 
-// Sound effects helper functions
-const playSound = (frequency: number, duration: number, type: 'sine' | 'square' | 'sawtooth' = 'sine') => {
-  if (typeof window !== 'undefined' && window.AudioContext) {
-    try {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const audioContext = new AudioContextClass();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = frequency;
-      oscillator.type = type;
-      
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + duration);
-    } catch (error) {
-      console.log('Audio not supported:', error);
-    }
-  }
-};
-
-const playSelectSound = () => playSound(800, 0.1);
-const playSwapSound = () => playSound(600, 0.2);
-const playMatchSound = () => playSound(1000, 0.3);
-const playDropSound = () => playSound(400, 0.15);
-
-// Haptic feedback
-const vibrate = (pattern: number | number[]) => {
-  if (navigator.vibrate) {
-    navigator.vibrate(pattern);
-  }
-};
-
 const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     board: createInitialBoard(),
     score: 0,
-    moves: INITIAL_MOVES,
+    moves: GAME_CONFIG.INITIAL_MOVES,
     level: 1,
     selectedFruit: null,
     isProcessing: false,
@@ -132,14 +103,14 @@ const Game: React.FC = () => {
     let newBoard = removeMatches(board, matches);
     
     // รอสักครู่เพื่อให้เห็น animation
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATIONS.MATCH_DISAPPEAR));
     
     // ปล่อย fruits ลงมา
     newBoard = dropFruits(newBoard);
     playDropSound();
     
     // รอสักครู่เพื่อให้เห็น dropping animation
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATIONS.DROP_FRUITS));
     
     // ตรวจสอบ matches ใหม่อีกรอบ (สำหรับ combo)
     return processMatches(newBoard, combo + 1);
@@ -201,7 +172,7 @@ const Game: React.FC = () => {
     setGameState({
       board: createInitialBoard(),
       score: 0,
-      moves: INITIAL_MOVES,
+      moves: GAME_CONFIG.INITIAL_MOVES,
       level: 1,
       selectedFruit: null,
       isProcessing: false,
@@ -216,11 +187,11 @@ const Game: React.FC = () => {
   };
 
   const nextLevel = () => {
-    const timeBonus = Math.max(0, gameState.moves * 50);
+    const timeBonus = Math.max(0, gameState.moves * GAME_CONFIG.TIME_BONUS_PER_MOVE);
     setGameState(prev => ({
       ...prev,
       level: prev.level + 1,
-      moves: INITIAL_MOVES,
+      moves: GAME_CONFIG.INITIAL_MOVES,
       score: prev.score + timeBonus,
       timeBonus,
       board: createInitialBoard(),
@@ -238,7 +209,7 @@ const Game: React.FC = () => {
     // ตรวจสอบว่าชนะระดับหรือไม่
     if (gameState.score >= getCurrentTargetScore()) {
       setGameState(prev => ({ ...prev, gameStatus: 'won' }));
-      playSound(1200, 0.5);
+      playWinSound();
       vibrate([200, 100, 200, 100, 200]);
       return;
     }
@@ -247,7 +218,7 @@ const Game: React.FC = () => {
     if (gameState.moves <= 0) {
       if (!hasValidMoves(gameState.board)) {
         setGameState(prev => ({ ...prev, gameStatus: 'lost' }));
-        playSound(300, 1);
+        playLoseSound();
         vibrate([500, 200, 500]);
       }
       return;

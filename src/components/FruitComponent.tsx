@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Fruit } from '../types';
+import { FRUIT_EMOJIS } from '../constants';
 
 interface FruitProps {
   fruit: Fruit | null;
@@ -12,15 +13,6 @@ const FruitComponent: React.FC<FruitProps> = ({ fruit, onClick, isSelected }) =>
     return <div className="fruit empty" />;
   }
 
-  const fruitEmojis: Record<string, string> = {
-    apple: '🍎',
-    orange: '🍊', 
-    banana: '🍌',
-    grape: '🍇',
-    strawberry: '🍓',
-    kiwi: '🥝'
-  };
-
   return (
     <div
       className={`fruit ${fruit.type} ${isSelected ? 'selected' : ''} ${fruit.isMatched ? 'matched' : ''}`}
@@ -28,7 +20,7 @@ const FruitComponent: React.FC<FruitProps> = ({ fruit, onClick, isSelected }) =>
       data-testid={`fruit-${fruit.row}-${fruit.col}`}
     >
       <span className="fruit-emoji">
-        {fruitEmojis[fruit.type]}
+        {FRUIT_EMOJIS[fruit.type]}
       </span>
     </div>
   );
