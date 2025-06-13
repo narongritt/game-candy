@@ -1,0 +1,503 @@
+/* Game Container */
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: white;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-header h1 {
+  margin: 0 0 20px 0;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.game-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(45deg, #00d2d3, #54a0ff);
+  color: white;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Score Board */
+.score-board {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.score-item {
+  text-align: center;
+  padding: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.score-item:hover {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
+
+.score-item .label {
+  display: block;
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.score-item .value {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+}
+
+.score-item.combo .value {
+  color: #ff6b6b;
+  animation: pulse 0.5s ease-in-out;
+}
+
+.score-item.time-bonus .value {
+  color: #feca57;
+  animation: glow 1s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 5px currentColor; }
+  50% { text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+}
+
+.progress-container {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+.progress-label {
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.progress-bar {
+  height: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.progress-text {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+/* Game Board */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+}
+
+.game-board.processing {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Fruit Styles */
+.fruit {
+  aspect-ratio: 1;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.9);
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.fruit:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.fruit.selected {
+  border-color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(255,255,255,0.8);
+  animation: selectedPulse 1s infinite;
+}
+
+@keyframes selectedPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.8); }
+  50% { box-shadow: 0 0 30px rgba(255,255,255,1); }
+}
+
+.fruit.matched {
+  animation: matchedDisappear 0.5s ease-out forwards;
+}
+
+@keyframes matchedDisappear {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.fruit-emoji {
+  font-size: 2em;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.fruit.empty {
+  background: transparent;
+  border: 2px dashed rgba(255,255,255,0.3);
+  cursor: default;
+}
+
+.fruit.empty:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Fruit Type Colors */
+.fruit.apple { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+.fruit.orange { background: linear-gradient(135deg, #fd79a8, #e84393); }
+.fruit.banana { background: linear-gradient(135deg, #fdcb6e, #f39c12); }
+.fruit.grape { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+.fruit.strawberry { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+.fruit.kiwi { background: linear-gradient(135deg, #55efc4, #00b894); }
+
+/* Game Status */
+.game-status {
+  text-align: center;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+  animation: statusAppear 0.5s ease-out;
+}
+
+@keyframes statusAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game-status.won {
+  background: linear-gradient(135deg, #00d2d3, #54a0ff);
+  color: white;
+  animation: celebration 1s ease-in-out infinite;
+}
+
+@keyframes celebration {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.game-status.lost {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+}
+
+.time-bonus-text {
+  font-size: 0.8em;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+/* Achievement Styles */
+.achievement-progress {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.achievement-progress h3 {
+  margin: 0 0 15px 0;
+  text-align: center;
+  color: white;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.achievement-item {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.achievement-item.unlocked {
+  border-color: #feca57;
+  background: rgba(254, 202, 87, 0.2);
+  animation: achievementUnlock 0.5s ease-out;
+}
+
+@keyframes achievementUnlock {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.achievement-item.locked {
+  opacity: 0.5;
+}
+
+.achievement-icon {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.achievement-name {
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+}
+
+/* Achievement Notification */
+.achievement-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #feca57, #ff9ff3);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  max-width: 300px;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.achievement-notification.visible {
+  transform: translateX(0);
+}
+
+.achievement-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.achievement-icon {
+  font-size: 3em;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.achievement-title {
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.achievement-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.achievement-description {
+  font-size: 0.8em;
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 10px;
+  }
+  
+  .game-header h1 {
+    font-size: 2em;
+  }
+  
+  .score-board {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .game-board {
+    gap: 4px;
+    padding: 15px;
+  }
+  
+  .candy-emoji {
+    font-size: 1.5em;
+  }
+  
+  .achievement-notification {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+  
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .score-board {
+    grid-template-columns: 1fr;
+  }
+  
+  .candy-emoji {
+    font-size: 1.2em;
+  }
+  
+  .game-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+}
