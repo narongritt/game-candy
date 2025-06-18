@@ -1,5 +1,10 @@
 import type { Fruit, FruitType } from './types';
-import { GAME_CONFIG, FRUIT_TYPES } from './constants';
+import { GAME_CONFIG, FRUIT_TYPES, LEVEL_MOVES } from './constants';
+
+// ฟังก์ชันสำหรับดึงจำนวน moves ตามระดับ
+export const getMovesForLevel = (level: number): number => {
+  return LEVEL_MOVES[level - 1] || LEVEL_MOVES[LEVEL_MOVES.length - 1];
+};
 
 export const createInitialBoard = (): (Fruit | null)[][] => {
   const board: (Fruit | null)[][] = [];
@@ -182,9 +187,33 @@ export const areAdjacent = (fruit1: Fruit, fruit2: Fruit): boolean => {
 };
 
 export const calculateScore = (matches: Fruit[], combo: number = 1): number => {
-  const baseScore = matches.length * GAME_CONFIG.BASE_SCORE_PER_FRUIT;
+  const matchCount = matches.length;
+  const baseScore = matchCount * GAME_CONFIG.BASE_SCORE_PER_FRUIT;
+  
+  // โบนัสตามจำนวนผลไม้ที่จับคู่ (ลดลง)
+  let matchBonus = 0;
+  if (matchCount >= 6) {
+    matchBonus = GAME_CONFIG.MEGA_MATCH_BONUS; // โบนัส 1,500 คะแนน
+  } else if (matchCount >= 5) {
+    matchBonus = GAME_CONFIG.SUPER_MATCH_BONUS; // โบนัส 800 คะแนน
+  } else if (matchCount >= 4) {
+    matchBonus = GAME_CONFIG.LARGE_MATCH_BONUS; // โบนัส 300 คะแนน
+  }
+  
+  // คูณด้วยคอมโบ (ลดลง)
   const comboMultiplier = Math.min(combo, GAME_CONFIG.MAX_COMBO_MULTIPLIER);
-  return Math.floor(baseScore * comboMultiplier);
+  
+  // เพิ่มโบนัสคอมโบพิเศษ (ลดลง)
+  let comboBonus = 0;
+  if (combo >= 6) {
+    comboBonus = (baseScore + matchBonus) * 0.5; // โบนัส 50% เมื่อคอมโบ 6x ขึ้นไป
+  } else if (combo >= 4) {
+    comboBonus = (baseScore + matchBonus) * 0.25; // โบนัส 25% เมื่อคอมโบ 4x ขึ้นไป
+  } else if (combo >= 3) {
+    comboBonus = (baseScore + matchBonus) * 0.1; // โบนัส 10% เมื่อคอมโบ 3x
+  }
+  
+  return Math.floor((baseScore + matchBonus) * comboMultiplier + comboBonus);
 };
 
 export const hasValidMoves = (board: (Fruit | null)[][]): boolean => {

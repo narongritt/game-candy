@@ -329,6 +329,34 @@
   opacity: 0.9;
 }
 
+.auto-progress-text {
+  font-size: 0.7em;
+  margin-top: 8px;
+  opacity: 0.8;
+  animation: fadeInOut 1.5s ease-in-out infinite;
+}
+
+.ultimate-achievement {
+  font-size: 0.9em;
+  margin-top: 15px;
+  animation: rainbow 3s linear infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes rainbow {
+  0% { color: #ff6b6b; }
+  16% { color: #feca57; }
+  33% { color: #48dbfb; }
+  50% { color: #ff9ff3; }
+  66% { color: #54a0ff; }
+  83% { color: #5f27cd; }
+  100% { color: #ff6b6b; }
+}
+
 /* Achievement Styles */
 .achievement-progress {
   background: rgba(255,255,255,0.1);

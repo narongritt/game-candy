@@ -10,6 +10,7 @@ import {
   areAdjacent,
   calculateScore,
   hasValidMoves,
+  getMovesForLevel,
 } from '../gameUtils';
 import { checkAchievements, type GameStats } from '../achievements';
 import { 
@@ -31,7 +32,7 @@ const Game: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     board: createInitialBoard(),
     score: 0,
-    moves: GAME_CONFIG.INITIAL_MOVES,
+    moves: getMovesForLevel(1),
     level: 1,
     selectedFruit: null,
     isProcessing: false,
@@ -172,7 +173,7 @@ const Game: React.FC = () => {
     setGameState({
       board: createInitialBoard(),
       score: 0,
-      moves: GAME_CONFIG.INITIAL_MOVES,
+      moves: getMovesForLevel(1),
       level: 1,
       selectedFruit: null,
       isProcessing: false,
@@ -186,21 +187,48 @@ const Game: React.FC = () => {
     setFruitsDestroyed(0);
   };
 
-  const nextLevel = () => {
+  const nextLevel = useCallback(() => {
+    // ป้องกันการเรียกใช้ซ้ำ และตรวจสอบว่าไม่กำลัง processing
+    if (gameState.gameStatus !== 'won' || gameState.isProcessing) return;
+    
     const timeBonus = Math.max(0, gameState.moves * GAME_CONFIG.TIME_BONUS_PER_MOVE);
+    const nextLevelNum = gameState.level + 1;
+    
+    console.log(`Advancing to level ${nextLevelNum}...`); // Debug log
+    
+    // ตรวจสอบว่าถึงระดับสุดท้ายแล้วหรือไม่
+    if (nextLevelNum > LEVEL_SCORES.length) {
+      // จบเกม - ผู้เล่นผ่านทุกระดับแล้ว
+      setGameState(prev => ({
+        ...prev,
+        gameStatus: 'won',
+        timeBonus
+      }));
+      return;
+    }
+    
+    // เซ็ต processing เป็น true ระหว่างการเปลี่ยนระดับ
     setGameState(prev => ({
       ...prev,
-      level: prev.level + 1,
-      moves: GAME_CONFIG.INITIAL_MOVES,
-      score: prev.score + timeBonus,
-      timeBonus,
-      board: createInitialBoard(),
-      selectedFruit: null,
-      isProcessing: false,
-      gameStatus: 'playing',
-      combo: 0
+      isProcessing: true
     }));
-  };
+    
+    // หน่วงเวลาเล็กน้อยก่อนเปลี่ยนระดับ
+    setTimeout(() => {
+      setGameState(prev => ({
+        ...prev,
+        level: nextLevelNum,
+        moves: getMovesForLevel(nextLevelNum),
+        score: prev.score + timeBonus,
+        timeBonus,
+        board: createInitialBoard(),
+        selectedFruit: null,
+        isProcessing: false,
+        gameStatus: 'playing',
+        combo: 0
+      }));
+    }, 100);
+  }, [gameState.gameStatus, gameState.level, gameState.moves, gameState.isProcessing]);
 
   // ตรวจสอบสถานะเกม
   useEffect(() => {
@@ -234,6 +262,18 @@ const Game: React.FC = () => {
     }
   }, [gameState.score, gameState.moves, gameState.board, gameState.gameStatus, getCurrentTargetScore]);
 
+  // useEffect แยกสำหรับการเลื่อนระดับอัตโนมัติ
+  useEffect(() => {
+    if (gameState.gameStatus === 'won' && gameState.level <= LEVEL_SCORES.length) {
+      const timeout = setTimeout(() => {
+        nextLevel();
+      }, 2500);
+      
+      // Cleanup timeout เมื่อ component unmount หรือ dependency เปลี่ยน
+      return () => clearTimeout(timeout);
+    }
+  }, [gameState.gameStatus, gameState.level, nextLevel]);
+
   // ตรวจสอบ achievements
   useEffect(() => {
     checkForAchievements();
@@ -247,11 +287,6 @@ const Game: React.FC = () => {
           <button onClick={resetGame} className="btn btn-primary">
             New Game
           </button>
-          {gameState.gameStatus === 'won' && (
-            <button onClick={nextLevel} className="btn btn-success">
-              Next Level
-            </button>
-          )}
         </div>
       </div>
 
@@ -264,7 +299,7 @@ const Game: React.FC = () => {
         targetScore={getCurrentTargetScore()}
       />
 
-      {gameState.gameStatus === 'won' && (
+      {gameState.gameStatus === 'won' && gameState.level <= LEVEL_SCORES.length && (
         <div className="game-status won">
           🎉 Level {gameState.level} Complete! 🎉
           {gameState.timeBonus > 0 && (
@@ -272,6 +307,25 @@ const Game: React.FC = () => {
               Time Bonus: +{gameState.timeBonus} points!
             </div>
           )}
+          <div className="auto-progress-text">
+            Advancing to next level automatically...
+          </div>
+        </div>
+      )}
+
+      {gameState.gameStatus === 'won' && gameState.level > LEVEL_SCORES.length && (
+        <div className="game-status won">
+          🏆 CONGRATULATIONS! 🏆
+          <div>You've completed ALL levels!</div>
+          <div>Final Score: {gameState.score.toLocaleString()}</div>
+          {gameState.timeBonus > 0 && (
+            <div className="time-bonus-text">
+              Final Time Bonus: +{gameState.timeBonus} points!
+            </div>
+          )}
+          <div className="ultimate-achievement">
+            🌟 Ultimate Fruit Crush Master! 🌟
+          </div>
         </div>
       )}
 
