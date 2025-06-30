@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { GameState, Fruit } from '../types';
 import { GAME_CONFIG } from '../constants';
 import {
@@ -6,8 +6,6 @@ import {
   findMatches,
   removeMatches,
   dropFruits,
-  swapFruits,
-  areAdjacent,
   calculateScore,
 } from '../gameUtils';
 import { playMatchSound, playDropSound, vibrate } from '../utils/audio';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { achievements, type Achievement } from '../achievements';
+import { achievements } from '../achievements';
 
 interface AchievementNotificationProps {
   achievementId: string;

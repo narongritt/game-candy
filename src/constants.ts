@@ -8,6 +8,7 @@ export const GAME_CONFIG = {
   SUPER_MATCH_BONUS: 800, // โบนัสเมื่อจับคู่ 5 ลูก
   MEGA_MATCH_BONUS: 1500, // โบนัสเมื่อจับคู่ 6 ลูกขึ้นไป
   PERFECT_CLEAR_BONUS: 5000, // โบนัสเมื่อเคลียร์หลาย matches พร้อมกัน
+  INITIAL_MOVES: 15, // Default moves for level 1
 } as const;
 
 export const FRUIT_TYPES = [
